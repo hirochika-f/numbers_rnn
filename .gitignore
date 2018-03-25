@@ -1,5 +1,10 @@
 T-data.csv
+T-data.xls
+T-data.xls.tmp
 bin/
 data/
 lib/
 pyvenv.cfg
+pip-selfcheck.json
+xls_test.py
+__pycache__/

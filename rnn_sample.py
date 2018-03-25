@@ -66,6 +66,7 @@ for epoch in range(EPOCH_NUM):
         index = np.random.randint(0, N)
         x.append(train_x[index])
     x = np.array(x, dtype="float32")
+    print(x.shape)
     # Reshape (TIME_STEP, BATCH_SIZE) -> (TIME_STEP, BATCH_SIZE, FEATURES)
     x = np.reshape(x, (TIME_STEP, BATCH_SIZE, 1))
     # Reshape (BATCH_SIZE) -> (OUTPUT_SIZE, BATCH_SIZE)
