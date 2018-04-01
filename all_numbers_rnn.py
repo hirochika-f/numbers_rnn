@@ -26,13 +26,13 @@ class LSTM(nn.Module):
         self.batch_size = batch_size
         self.num_layers = num_layers
 
-    def __call__(self, xs):
-        h, self.hidden = self.xh(xs, self.hidden)
+    def __call__(self, xs, hidden):
+        h, hidden = self.xh(xs, hidden)
         # LSTM output parameter has a shape of (seq_len, batch, hidden_size*num_directions)
         # Last element of the sequence is prediction
         y = self.hy(h[-1])
-        return y
-
+        return y, hidden
+    
     def reset(self):
         self.hidden = (Variable(torch.zeros(self.num_layers, self.batch_size, self.hidden_size)), Variable(torch.zeros(self.num_layers, self.batch_size, self.hidden_size)))
 
@@ -56,7 +56,7 @@ def result2numbers(result):
 
 if __name__ == "__main__":
     # HYPER PARAMETERS
-    EPOCH_NUM = 1
+    EPOCH_NUM = 1000
     HIDDEN_SIZE = 1
     NUM_LAYERS = 1
     TIME_STEP = 3
@@ -107,8 +107,8 @@ if __name__ == "__main__":
         t = Variable(torch.from_numpy(t))
 
         total_loss = 0
-        model.reset()
-        y = model(x)
+        #model.reset()
+        y, output_hidden = model(x, hidden=None)
         loss = criterion(y, t)
         loss.backward()
         total_loss = total_loss + loss.data.numpy()[0]
@@ -122,18 +122,18 @@ if __name__ == "__main__":
     numbers = result2numbers(y)
     # y = np.round(y)
    # numbers = data_prepare.onehotvector2numbers(y[-1])
-    print(y[-1])
+    #print(y[-1])
     print(numbers)
 
     # Prediction
-    latest = []
-    for i in range(3):
-        i = i - 3
-        latest.append(onehotvectors[i])
-    latest_batch = []
-    latest_batch.append(latest)
-    latest_batch = np.array(latest_batch, dtype="float32")
-    print(latest_batch)
-    latest_batch = latest_batch.transpose(1, 0, 2)
-    latest_batch = Variable(torch.from_numpy(latest_batch))
-    prediction = model(latest_batch)
+    # latest = []
+    # for i in range(3):
+        # i = i - 3
+        # latest.append(onehotvectors[i])
+    # latest_batch = []
+    # latest_batch.append(latest)
+    # latest_batch = np.array(latest_batch, dtype="float32")
+    # print(latest_batch)
+    # latest_batch = latest_batch.transpose(1, 0, 2)
+    # latest_batch = Variable(torch.from_numpy(latest_batch))
+    # prediction = model(latest_batch, output_hidden[0])
