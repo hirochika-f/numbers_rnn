@@ -56,8 +56,8 @@ def result2numbers(result):
 
 if __name__ == "__main__":
     # HYPER PARAMETERS
-    EPOCH_NUM = 1000
-    HIDDEN_SIZE = 1
+    EPOCH_NUM = 800
+    HIDDEN_SIZE = 10
     NUM_LAYERS = 1
     TIME_STEP = 3
     FEATURES = 40
@@ -126,14 +126,15 @@ if __name__ == "__main__":
     print(numbers)
 
     # Prediction
-    # latest = []
-    # for i in range(3):
-        # i = i - 3
-        # latest.append(onehotvectors[i])
-    # latest_batch = []
-    # latest_batch.append(latest)
-    # latest_batch = np.array(latest_batch, dtype="float32")
-    # print(latest_batch)
-    # latest_batch = latest_batch.transpose(1, 0, 2)
-    # latest_batch = Variable(torch.from_numpy(latest_batch))
-    # prediction = model(latest_batch, output_hidden[0])
+    latest_batch = []
+    latest_batch.append(onehotvectors[-BATCH_SIZE:])
+    latest_batch = np.array(latest_batch, dtype="float32")
+    print(latest_batch)
+    latest_batch = latest_batch.transpose(1, 0, 2)
+    latest_batch = Variable(torch.from_numpy(latest_batch))
+
+    prediction, prediction_hidden = model(latest_batch, None)
+    prediction = prediction.data.numpy()
+    print(prediction)
+    predicted_numbers = result2numbers(prediction)
+    print(predicted_numbers)
