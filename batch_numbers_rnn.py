@@ -59,8 +59,8 @@ def result2numbers(result):
 
 if __name__ == "__main__":
     # HYPER PARAMETERS
-    EPOCH_NUM = 5000
-    HIDDEN_SIZE = 1
+    EPOCH_NUM = 1000
+    HIDDEN_SIZE = 5
     NUM_LAYERS = 1
     TIME_STEP = 3
     FEATURES = 40
@@ -118,6 +118,7 @@ if __name__ == "__main__":
             t = Variable(torch.from_numpy(t))
 
             # model.reset()
+            model.zero_grad()
             y, output_hidden = model(x, hidden=None)
             loss = criterion(y, t)
             loss.backward()
@@ -131,7 +132,8 @@ if __name__ == "__main__":
             st = datetime.datetime.now()
 
     y = y.data.numpy()
-    print(y)
+    
+    # print(y)
     numbers = result2numbers(y)
     # y = np.round(y)
     # numbers = data_prepare.onehotvector2numbers(y[-1])
@@ -149,6 +151,6 @@ if __name__ == "__main__":
 
     prediction, predicted_hidden = model(latest_data, output_hidden)
     prediction = prediction.data.numpy()
-    print(prediction)
+    # print(prediction)
     predicted_numbers = result2numbers(prediction)
     print(predicted_numbers)

@@ -79,7 +79,11 @@ if __name__ == "__main__":
     random_batch_index = np.array(range(len(train_x)))
 
     # RNN settings
-    model = LSTM(features=FEATURES, hidden_size=HIDDEN_SIZE, batch_size=BATCH_SIZE, num_layers=NUM_LAYERS, out_size=40)
+    model = LSTM(features=FEATURES, 
+            hidden_size=HIDDEN_SIZE, 
+            batch_size=BATCH_SIZE, 
+            num_layers=NUM_LAYERS, 
+            out_size=40)
     criterion = nn.MSELoss()
     optimizer = torch.optim.Adam(model.parameters())
 
@@ -108,6 +112,7 @@ if __name__ == "__main__":
 
         total_loss = 0
         #model.reset()
+        model.zero_grad()
         y, output_hidden = model(x, hidden=None)
         loss = criterion(y, t)
         loss.backward()
