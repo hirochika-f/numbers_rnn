@@ -114,6 +114,7 @@ if __name__ == "__main__":
         #model.reset()
         model.zero_grad()
         y, output_hidden = model(x, hidden=None)
+        print(y.shape)
         loss = criterion(y, t)
         loss.backward()
         total_loss = total_loss + loss.data.numpy()[0]

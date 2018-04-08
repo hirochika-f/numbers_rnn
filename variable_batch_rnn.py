@@ -48,6 +48,7 @@ def data_read():
     return numbers_array
 
 def result2numbers(result):
+    """ RNN output 2 decimal. Only latest data. """
     numbers = []
     for i in range(4):
         i = i * 10
@@ -59,18 +60,16 @@ def result2numbers(result):
 
 if __name__ == "__main__":
     # HYPER PARAMETERS
-    EPOCH_NUM = 1000
+    EPOCH_NUM = 1
     HIDDEN_SIZE = 5
     NUM_LAYERS = 1
-    TIME_STEP = 5
+    TIME_STEP = 3
     FEATURES = 40
-    BATCH_SIZE = TIME_STEP - 2
+    BATCH_SIZE = 3
 
     # Load NUMBERS
     numbers_array = data_read()
     print(numbers_array[-1])
-
-    DATA_LENGTH = len(numbers_array) - TIME_STEP
 
     # NUMBERS to one hot vector
     onehotvectors = []
@@ -86,25 +85,35 @@ if __name__ == "__main__":
             out_size=FEATURES)
     criterion = nn.MSELoss()
     optimizer = torch.optim.Adam(model.parameters())
-    
+
+    # Number of TIME_STEP data group
+    DATA_LENGTH = len(numbers_array) - TIME_STEP
+
+    # Create groups that have TIME_STEP data
     train_x, train_t = [], []
     for i in range(DATA_LENGTH):
         train_x.append(onehotvectors[i:i+TIME_STEP])
         train_t.append(onehotvectors[i+TIME_STEP])
     train_x = np.array(train_x, dtype="float32")
-    # print(train_x[-1])
-    random_batch_indicies = np.array(range(len(train_x)))
 
+    # train_x indicies for randomly batchfy
+    random_batch_indicies = np.array(range(len(train_x)-(BATCH_SIZE-1)))
+
+    # Standard time to print times for each iteration
     st = datetime.datetime.now()
 
     for epoch in range(EPOCH_NUM):
-        # Randomly batchfy
-        random_batch_indicies = np.random.permutation(random_batch_indicies)
         total_loss = 0
+
+        # Randomized indicies for batchfy
+        random_batch_indicies = np.random.permutation(random_batch_indicies)
+
+        # Batch learning
         for i in random_batch_indicies:
             x, t = [], []
-            x.append(train_x[i])
-            t.append(train_t[i])
+            for j in range(i, i+BATCH_SIZE):
+                x.append(train_x[i])
+                t.append(train_t[i])
         
             x = np.array(x, dtype="float32")
             t = np.array(t, dtype="float32")
@@ -132,26 +141,25 @@ if __name__ == "__main__":
             print("epoch:\t{}\ttotal_loss:\t{}\ttime:\t{}".format(epoch+1, total_loss/len(random_batch_indicies), ed-st))
             st = datetime.datetime.now()
 
-    y = y.data.numpy()
-    
-    # print(y)
-    numbers = result2numbers(y)
+    # y = y.data.numpy()
+    # numbers = result2numbers(y)
     # y = np.round(y)
     # numbers = data_prepare.onehotvector2numbers(y[-1])
-    #print(y[-1])
-    print(numbers)
+    # print(y[-1])
+    # print(numbers)
 
-    # Prediction
+    # Construct data to prediction
     latest_data = []
-    latest_data.append(onehotvectors[-3:])
+    latest_data_num = (TIME_STEP + BATCH_SIZE - 1) * -1
+    latest_onehotvectors = onehotvectors[latest_data_num:]
+    for k in range(len(latest_onehotvectors)-TIME_STEP+1):
+        latest_data.append(onehotvectors[k:k+TIME_STEP])
     latest_data = np.array(latest_data, dtype="float32")
-    # latest_data = np.zeros_like(latest_data)
-    # print(latest_data)
     latest_data = latest_data.transpose(1, 0, 2)
     latest_data = Variable(torch.from_numpy(latest_data))
 
+    # Prediction
     prediction, predicted_hidden = model(latest_data, output_hidden)
     prediction = prediction.data.numpy()
-    # print(prediction)
     predicted_numbers = result2numbers(prediction)
     print(predicted_numbers)
